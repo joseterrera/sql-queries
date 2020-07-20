@@ -81,6 +81,8 @@ SELECT category FROM analytics
   ORDER BY proportion DESC
   LIMIT 1;
 
+  -- Further sturies:
+
   -- Find the name and rating of the top rated apps in each category, among apps that have been installed at least 50,000 times.
 SELECT app_name, rating, category FROM analytics
   WHERE (rating, category) in (
@@ -89,6 +91,43 @@ SELECT app_name, rating, category FROM analytics
       GROUP BY category
     )
   ORDER BY category;
+
+-- the flaw here with this solution that there maybe apps with less than 50k installs that have the same
+-- rating and category as an app in the same category with the same rating.
+
+
+-- rating: 4.3
+-- category: game
+
+
+
+-- suppose we have these apps under games
+
+-- name: mario brothers 
+-- installs: 51k
+-- rating: 4.3
+-- category: game
+
+-- name: 4d tic tac toe 
+-- installs: 116
+-- rating: 4.3
+-- category: game
+
+
+-- alternative solution:
+
+SELECT into memory_table MAX(rating), category FROM analytics
+  WHERE min_installs >= 50000
+  GROUP BY category;
+
+SELECT app_name, rating, category FROM analytics
+  WHERE (rating, category) in (
+     memory_table
+    )
+  ORDER BY category;
+
+
+
 
 --Find all the apps that have a name similar to "facebook".
 
